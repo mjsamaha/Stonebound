@@ -1,0 +1,8 @@
+Music - Open Game Art
+Artist: Trevor Lentz
+
+** Game Trailer Music ** == Some Adventure
+
+> PRE_LOADER_MUSIC == Hero Immortal
+
+> GAMEPLAY_MUSIC == 
