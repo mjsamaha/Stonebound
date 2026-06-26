@@ -18,77 +18,93 @@ import com.lobsterchops.stonebound.game.ui.core.Screen;
 import com.lobsterchops.stonebound.game.ui.core.ScreenManager;
 
 /**
- * Main menu screen.  Renders a title and a blinking "Press ENTER" prompt.
+ * Main menu screen. Renders a title and a blinking "Press ENTER" prompt.
  *
- * <p>Hook {@link #onKeyPressed(int)} into InputManager once that layer
- * dispatches key events to the active screen.
+ * <p>
+ * Hook {@link #onKeyPressed(int)} into InputManager once that layer dispatches
+ * key events to the active screen.
  */
+
 public class MenuScreen extends Screen {
- 
-    private static final Font  TITLE_FONT        = new Font("Monospaced", Font.BOLD,  64);
-    private static final Font  PROMPT_FONT        = new Font("Monospaced", Font.PLAIN, 20);
- 
-    private long elapsed = 0L;
- 
-    public MenuScreen(ScreenManager screenManager) {
-        super(screenManager);
-    }
- 
-    @Override
-    public void onEnter() {
-        elapsed = 0L;
-    }
- 
-    @Override
-    public void update(long elapsedNanos) {
-        elapsed += elapsedNanos;
-    }
-    
-    public void handleInput(InputState input) {
-    	
-    	AudioService audio = ServiceLocator.resolve(AudioService.class);
-    	
-    	if (input.isPressed(InputAction.CONFIRM)) {
-    		audio.play(SoundIds.UI_CONFIRM);
-    		audio.stop(SoundIds.PRE_LOADER_MUSIC);
-    		audio.play(SoundIds.GAMEPLAY_MUSIC_ONE);
-    		screenManager.transitionTo(new StoryScreen(screenManager));
-    	}
-    }
- 
-    @Override
-    public void render(Graphics2D g2) {
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                            RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
- 
-        int centerX = ScreenConfig.WIDTH  / 2;
-        int centerY = ScreenConfig.HEIGHT / 2;
- 
-        // Game title
-        g2.setFont(TITLE_FONT);
-        g2.setColor(Color.WHITE);
-        String title = Version.TITLE.toUpperCase();
-        FontMetrics tfm = g2.getFontMetrics();
-        g2.drawString(title, centerX - tfm.stringWidth(title) / 2, centerY - 60);
- 
-        // Blinking prompt
-        if ((elapsed % ScreenConfig.BLINK_PERIOD_NANOS) < (ScreenConfig.BLINK_PERIOD_NANOS / 2)) {
-            g2.setFont(PROMPT_FONT);
-            g2.setColor(new Color(200, 200, 200));
-            String prompt = "PRESS  ENTER  TO  START";
-            FontMetrics pfm = g2.getFontMetrics();
-            g2.drawString(prompt, centerX - pfm.stringWidth(prompt) / 2, centerY + 40);
-        }
-        
-        // Static ESC hint - always visible
-        g2.setFont(PROMPT_FONT);
-        g2.setColor(new Color(120, 120, 120));
-        String quit = "ESC TO QUIT";
-        FontMetrics qfm = g2.getFontMetrics();
-        g2.drawString(quit,  centerX - qfm.stringWidth(quit) / 2, centerY + 80);
-    }
- 
-    /** @deprecated Unconnected stub — input is dispatched via handleInput(InputState). */
-    @Deprecated
-    public void onKeyPressed(int keyCode) {}
+
+	private static final Font TITLE_FONT = new Font("Monospaced", Font.BOLD, 64);
+	private static final Font PROMPT_FONT = new Font("Monospaced", Font.PLAIN, 20);
+	private static final long BLINK_PERIOD_NANOS = 800_000_000L; // 800 ms
+
+	private long elapsed = 0L;
+
+	public MenuScreen(ScreenManager screenManager) {
+		super(screenManager);
+	}
+
+	// ── Screen lifecycle ──────────────────────────────────────────────────────
+
+	@Override
+	public void onEnter() {
+		elapsed = 0L;
+	}
+
+	@Override
+	public void update(long elapsedNanos) {
+		elapsed += elapsedNanos;
+	}
+
+	// ── Input ─────────────────────────────────────────────────────────────────
+
+	/**
+	 * Dispatches this tick's input to the menu. Called by
+	 * {@link com.lobsterchops.stonebound.game.core.GamePanel} when this screen is
+	 * the active screen.
+	 *
+	 * @param input the polled input state for this tick; must not be null
+	 */
+	public void handleInput(InputState input) {
+		if (input.isPressed(InputAction.CONFIRM)) {
+			// TODO: screenManager.transitionTo(new StoryScreen(screenManager));
+		}
+	}
+
+	/**
+	 * Legacy raw-key hook. Prefer {@link #handleInput(InputState)}.
+	 *
+	 * @param keyCode a {@link KeyEvent} VK_ constant
+	 */
+	public void onKeyPressed(int keyCode) {
+		if (keyCode == KeyEvent.VK_ENTER) {
+			// TODO: screenManager.transitionTo(new StoryScreen(screenManager));
+		}
+	}
+
+	// ── Render ────────────────────────────────────────────────────────────────
+
+	@Override
+	public void render(Graphics2D g2) {
+		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+		int centerX = ScreenConfig.WIDTH / 2;
+		int centerY = ScreenConfig.HEIGHT / 2;
+
+		// Game title
+		g2.setFont(TITLE_FONT);
+		g2.setColor(Color.WHITE);
+		String title = Version.TITLE.toUpperCase();
+		FontMetrics tfm = g2.getFontMetrics();
+		g2.drawString(title, centerX - tfm.stringWidth(title) / 2, centerY - 60);
+
+		// Blinking "Press ENTER" prompt
+		if ((elapsed % BLINK_PERIOD_NANOS) < (BLINK_PERIOD_NANOS / 2)) {
+			g2.setFont(PROMPT_FONT);
+			g2.setColor(new Color(200, 200, 200));
+			String prompt = "PRESS  ENTER  TO  START";
+			FontMetrics pfm = g2.getFontMetrics();
+			g2.drawString(prompt, centerX - pfm.stringWidth(prompt) / 2, centerY + 40);
+		}
+
+		// Static ESC hint - always visible
+		g2.setFont(PROMPT_FONT);
+		g2.setColor(new Color(120, 120, 120));
+		String quit = "ESC TO QUIT";
+		FontMetrics qfm = g2.getFontMetrics();
+		g2.drawString(quit, centerX - qfm.stringWidth(quit) / 2, centerY + 80);
+	}
 }

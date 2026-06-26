@@ -6,6 +6,7 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 
 import com.lobsterchops.stonebound.game.config.ScreenConfig;
+import com.lobsterchops.stonebound.game.engine.gfx.Renderer;
 
 /**
  * Owns the active {@link Screen} and drives FADE-OUT → swap → FADE-IN
@@ -38,11 +39,9 @@ import com.lobsterchops.stonebound.game.config.ScreenConfig;
  * elapsed-time argument to its callbacks.
  */
 public class ScreenManager {
- 
- 
+	 
     /** Duration of each fade half (out or in), in nanoseconds (400 ms). */
     private static final long FADE_DURATION_NANOS = 400_000_000L;
- 
  
     private enum TransitionState { IDLE, FADE_OUT, FADE_IN }
  
@@ -52,30 +51,31 @@ public class ScreenManager {
     private long            fadeElapsed = 0L;
     private float           alpha       = 0f;
  
-    // self-clocking field for tick()
+    // Self-clocking field for tick().
     private long lastTickNanos = -1L;
- 
  
     private static final Screen NULL_SCREEN = new Screen(null) {
         @Override public void update(long elapsedNanos) {}
         @Override public void render(Graphics2D g2)     {}
     };
-
+ 
+    // ── Construction ─────────────────────────────────────────────────────────
  
     /**
      * Creates the manager with a no-op sentinel as the active screen.
      * Call {@link #setInitialScreen(Screen)} immediately after constructing
-     * the first real Screen.
+     * the first real screen.
      */
     public ScreenManager() {
         this.activeScreen = NULL_SCREEN;
     }
-
+ 
+    // ── Bootstrap ─────────────────────────────────────────────────────────────
  
     /**
      * Replaces the sentinel with the real opening screen — no fade.
      * Intended ONLY for the initial bootstrap in GamePanel.setupGame().
-     * After the loop has started, use {@link #transitionTo(Screen)} instead.
+     * After the game loop has started, use {@link #transitionTo(Screen)} instead.
      *
      * @param screen must not be null
      */
@@ -84,7 +84,8 @@ public class ScreenManager {
         this.activeScreen = screen;
         this.activeScreen.onEnter();
     }
-
+ 
+    // ── Transitions ───────────────────────────────────────────────────────────
  
     /**
      * Requests a fade transition to {@code next}.  Ignored if a transition
@@ -99,12 +100,13 @@ public class ScreenManager {
         state         = TransitionState.FADE_OUT;
         fadeElapsed   = 0L;
     }
-
+ 
+    // ── Tick ─────────────────────────────────────────────────────────────────
  
     /**
      * Self-clocking update.  Wired as the {@code updateTick} Runnable in
-     * GameLoop — computes elapsed nanos internally then delegates to
-     * {@link #update(long)}.
+     * {@link com.lobsterchops.stonebound.game.core.GameLoop} — computes elapsed
+     * nanos internally then delegates to {@link #update(long)}.
      */
     public void tick() {
         long now = System.nanoTime();
@@ -122,7 +124,7 @@ public class ScreenManager {
      * @param elapsedNanos nanoseconds since the last tick
      */
     public void update(long elapsedNanos) {
-        activeScreen.update(elapsedNanos);   // always tick — keeps animations alive
+        activeScreen.update(elapsedNanos); // always tick — keeps animations alive
  
         switch (state) {
             case FADE_OUT -> tickFadeOut(elapsedNanos);
@@ -131,13 +133,22 @@ public class ScreenManager {
         }
     }
  
+    // ── Render ───────────────────────────────────────────────────────────────
+ 
     /**
      * Renders the active screen, then composites the fade overlay on top.
-     * Called on the EDT by GamePanel's paintComponent.
+     * Called by the {@link com.lobsterchops.stonebound.game.engine.gfx.RenderPipeline}
+     * as the {@link com.lobsterchops.stonebound.game.engine.gfx.RenderLayerKey#UI} callback.
      *
-     * @param g2 owned by GamePanel — do not dispose
+     * <p>Uses {@link Renderer#getRaw()} for the AlphaComposite fade because
+     * {@code Renderer} does not expose a general-purpose alpha-fill method.
+     * This is one of the few legitimate uses of {@code getRaw()}.
+     *
+     * @param renderer the active renderer for this frame; must not be null
      */
-    public void render(Graphics2D g2) {
+    public void render(Renderer renderer) {
+        Graphics2D g2 = renderer.getRaw();
+ 
         activeScreen.render(g2);
  
         if (alpha > 0f) {
@@ -149,6 +160,19 @@ public class ScreenManager {
         }
     }
  
+    // ── Accessors ─────────────────────────────────────────────────────────────
+ 
+    /**
+     * Returns the currently active screen.
+     * Useful for input dispatch in {@link com.lobsterchops.stonebound.game.core.GamePanel}.
+     *
+     * @return the active screen; never null (may be the internal NULL_SCREEN sentinel)
+     */
+    public Screen getActiveScreen() {
+        return activeScreen;
+    }
+ 
+    // ── Fade helpers ──────────────────────────────────────────────────────────
  
     private void tickFadeOut(long elapsedNanos) {
         fadeElapsed += elapsedNanos;
@@ -173,11 +197,4 @@ public class ScreenManager {
             state = TransitionState.IDLE;
         }
     }
-    
-    public Screen getActiveScreen() {
-		return activeScreen;
-	}
-
-
-
 }
