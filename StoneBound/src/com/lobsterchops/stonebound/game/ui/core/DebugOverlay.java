@@ -2,9 +2,7 @@ package com.lobsterchops.stonebound.game.ui.core;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 
-import com.lobsterchops.stonebound.game.core.ServiceLocator;
 import com.lobsterchops.stonebound.game.engine.gfx.Renderer;
 import com.lobsterchops.stonebound.game.engine.util.DebugMetrics;
 

@@ -37,7 +37,6 @@ public class MenuScreen extends Screen {
 		super(screenManager);
 	}
 
-	// ── Screen lifecycle ──────────────────────────────────────────────────────
 
 	@Override
 	public void onEnter() {
@@ -49,7 +48,6 @@ public class MenuScreen extends Screen {
 		elapsed += elapsedNanos;
 	}
 
-	// ── Input ─────────────────────────────────────────────────────────────────
 
 	/**
 	 * Dispatches this tick's input to the menu. Called by
@@ -59,8 +57,14 @@ public class MenuScreen extends Screen {
 	 * @param input the polled input state for this tick; must not be null
 	 */
 	public void handleInput(InputState input) {
+		AudioService audio = ServiceLocator.resolve(AudioService.class);
+		
+		
 		if (input.isPressed(InputAction.CONFIRM)) {
-			// TODO: screenManager.transitionTo(new StoryScreen(screenManager));
+			audio.play(SoundIds.UI_CONFIRM);
+			audio.stop(SoundIds.PRE_LOADER_MUSIC);
+			audio.play(SoundIds.GAMEPLAY_MUSIC_ONE);
+			screenManager.transitionTo(new StoryScreen(screenManager));
 		}
 	}
 
@@ -75,7 +79,6 @@ public class MenuScreen extends Screen {
 		}
 	}
 
-	// ── Render ────────────────────────────────────────────────────────────────
 
 	@Override
 	public void render(Graphics2D g2) {

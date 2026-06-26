@@ -2,14 +2,11 @@ package com.lobsterchops.stonebound.game.core;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
 import com.lobsterchops.stonebound.game.config.ColorConfig;
 import com.lobsterchops.stonebound.game.config.ScreenConfig;
-import com.lobsterchops.stonebound.game.engine.audio.AudioService;
-import com.lobsterchops.stonebound.game.engine.audio.content.SoundIds;
 import com.lobsterchops.stonebound.game.engine.gfx.RenderLayerKey;
 import com.lobsterchops.stonebound.game.engine.gfx.RenderPipeline;
 import com.lobsterchops.stonebound.game.engine.input.InputAction;
@@ -114,15 +111,13 @@ public class GamePanel extends JPanel implements Runnable {
  
         InputState input  = gameContext.getInputManager().poll();
         Screen activeScreen = screenManager.getActiveScreen();
- 
-        // Route input to whichever screen is active.
+        
         if (activeScreen instanceof MenuScreen menu) {
-            menu.handleInput(input);
-        }
- 
-        // Check global actions regardless of active screen.
-        if (input.isPressed(InputAction.DEBUG)) {
-            // TODO: toggle DebugOverlay when it is wired into the UI layer
+        	if (input.isPressed(InputAction.PAUSE)) {
+        		stopGameThread();
+        		System.exit(0);
+        	}
+        	menu.handleInput(input);
         }
  
         gameContext.getInputManager().flush();

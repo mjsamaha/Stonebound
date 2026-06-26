@@ -12,9 +12,6 @@ public final class GameAudio {
 		
 		catalog.register(new SoundDefinition(
 				SoundIds.UI_CONFIRM, "/audio/sfx/ui_confirm.wav", SoundType.SFX, AudioCategory.SFX, 1.0f, false));
-		
-		catalog.register(new SoundDefinition(
-				SoundIds.UI_CANCEL, "/audio/sfx/ui_cancel.wav", SoundType.SFX, AudioCategory.SFX, 1.0f, false));
 	
 		catalog.register(new SoundDefinition
 				(SoundIds.PRE_LOADER_MUSIC, "/audio/music/preloader_music.wav", SoundType.MUSIC, AudioCategory.MUSIC, 1.0f, true));

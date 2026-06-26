@@ -4,7 +4,6 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 public class RenderPipeline {
  
@@ -20,7 +19,6 @@ public class RenderPipeline {
         void render(Renderer renderer);
     }
  
-    // ── State ────────────────────────────────────────────────────────────────
  
     private final Renderer renderer;
  
@@ -32,7 +30,6 @@ public class RenderPipeline {
     private final EnumMap<RenderLayerKey, List<Renderable>> renderables =
             new EnumMap<>(RenderLayerKey.class);
  
-    // ── Construction ─────────────────────────────────────────────────────────
  
     public RenderPipeline(Renderer renderer) {
         this.renderer = renderer;
@@ -42,7 +39,6 @@ public class RenderPipeline {
         }
     }
  
-    // ── Registration API (persistent — survives frames) ───────────────────────
  
     /**
      * Adds a named system callback to a specific layer.
@@ -71,7 +67,6 @@ public class RenderPipeline {
         systemLayers.get(key).remove(layer);
     }
  
-    // ── Per-frame submission API ──────────────────────────────────────────────
  
     /**
      * Submits a {@link Renderable} for the current frame only.
@@ -91,7 +86,6 @@ public class RenderPipeline {
         renderables.get(renderable.getRenderLayer()).add(renderable);
     }
  
-    // ── Frame render ──────────────────────────────────────────────────────────
  
     /**
      * Executes one complete frame.  Called by
