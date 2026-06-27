@@ -12,7 +12,7 @@ import com.lobsterchops.stonebound.game.ui.core.ScreenManager;
 
 public class StoryScreen extends Screen {
 
-	private static final long DISPLAY_DURATION_NANOS = 9_000_000_000L; // 9 s
+	private static final long DISPLAY_DURATION_NANOS = 10_000_000_000L; // 9 s
 	private static final long FADE_IN_NANOS = 1_500_000_000L; // 1.5 s text fade-in
 
 	private static final Font STORY_FONT = new Font("Monospaced", Font.PLAIN, 16);

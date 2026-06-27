@@ -160,4 +160,18 @@ public class Camera {
 	public boolean isShaking() {
 		return shakeRemainingNanos > 0L;
 	}
+
+	public int getX() {
+		// TODO Auto-generated method stub
+		return (int) offsetX;
+	}
+
+	public int getY() {
+		// TODO Auto-generated method stub
+		return (int) offsetY;
+	}
+	
+	
+
+	
 }
